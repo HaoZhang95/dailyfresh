@@ -1,4 +1,10 @@
 # Byte-compiled / optimized / DLL files
+.idea
+.idea
+migrations/
+migrations/
+
+
 __pycache__/
 *.py[cod]
 *$py.class
