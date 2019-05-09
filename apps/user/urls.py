@@ -16,6 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path, include
 
+from user import views
+
 urlpatterns = [
+
+    re_path('^register$', views.register, name='register'),
+    re_path('^register_handle$', views.register_handle, name='register_handle'),
 
 ]
