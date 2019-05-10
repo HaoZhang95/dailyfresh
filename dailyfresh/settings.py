@@ -161,3 +161,18 @@ EMAIL_HOST_PASSWORD = 'token95'
 # #收件人看到的发件人，必须和上面的邮箱一样，否则发不出去
 EMAIL_FROM = '天天生鲜<huangrong08260@163.com>'
 
+
+# Django的缓存配置,默认换粗是在本机内存中
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/9",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# 配置session存储，默认的登录状态是保存在django数据库中的session表中
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
