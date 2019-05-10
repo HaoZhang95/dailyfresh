@@ -1,57 +1,116 @@
 import re
 
+from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.urls import reverse
+from django.views import View
 
 from user.models import User
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import SignatureExpired
+from dailyfresh import settings
 
 
-def register(request):
-    """显示注册界面"""
-    return render(request, 'register.html')
+class RegisterView(View):
+    """注册界面的类视图"""
+
+    def get(self, request):
+        # 显示注册界面
+        return render(request, 'register.html')
+
+    def post(self, request):
+        # 注册界面逻辑的处理
+        # 接收参数
+        username = request.POST.get('user_name')
+        password = request.POST.get('pwd')
+        email = request.POST.get('email')
+        allow = request.POST.get('allow')
+
+        # 参数验证
+        if not all([username, password, email]):
+            # 参数不完整
+            return render(request, 'register.html', {'errmsg': '数据不完整'})
+
+        if not re.match(r'^[a-z0-9][\w.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+            # 邮箱格式不正确
+            return render(request, 'register.html', {'errmsg': '邮箱格式不正确'})
+
+        if allow != 'on':
+            # 协议不同意
+            return render(request, 'register.html', {'errmsg': '请首先同意协议'})
+
+        # 业务处理：用户注册，验证用户是否存在
+        try:
+            # 用户已经存在
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            # 用户名不存在可以注册
+            user = None
+
+        if user:
+            return render(request, 'register.html', {'errmsg': '用户已存在'})
+
+        try:
+            user = User.objects.create_user(username, email, password)
+            user.is_active = 0
+            user.save()
+        except Exception as e:
+            return render(request, 'register.html', {'errmsg': '用户注册失败，请重试'})
+
+        # 设置激活链接/user/active/user_id
+        serializer = Serializer(settings.SECRET_KEY, 3600)
+        info = {'confirm': user.id}
+        token = serializer.dumps(info).decode('utf8')
+
+        # 发送邮件
+        subject = '天天生鲜激活信息'
+        message = ''
+        sender = settings.EMAIL_FROM
+        receiver = [email]
+        html_message = '<h1>%s, 欢迎您成为天天生鲜注册会员</h1>请点击下面链接激活您的账户<br/><a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>' % (
+        username, token, token)
+
+        try:
+            send_mail(subject,
+                      message,
+                      sender,
+                      receiver,
+                      html_message=html_message, fail_silently=False)
+        except Exception as e:
+            print(e)
+
+        # 返回结果, namespace=goods下面的name=index的视图函数
+        return redirect(reverse('goods:index'))
 
 
-def register_handle(request):
-    """注册界面逻辑的处理"""
-    # 接收参数
-    username = request.POST.get('user_name')
-    password = request.POST.get('pwd')
-    email = request.POST.get('email')
-    allow = request.POST.get('allow')
+class ActiveView(View):
+    """用户激活"""
 
-    # 参数验证
-    if not all([username, password, email]):
-        # 参数不完整
-        return render(request, 'register.html', {'errmsg': '数据不完整'})
+    def get(self, request, token):
+        # token揭密，获取用户信息
+        serializer = Serializer(settings.SECRET_KEY, 3600)
+        try:
+            info = serializer.loads(token)
+            user_id = info['confirm']
 
-    if not re.match(r'^[a-z0-9][\w.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
-        # 邮箱格式不正确
-        return render(request, 'register.html', {'errmsg': '邮箱格式不正确'})
+            # 根据id更改数据库胡is_active
+            user = User.objects.get(id=user_id)
+            user.is_active = 1
+            user.save()
 
-    if allow != 'on':
-        # 协议不同意
-        return render(request, 'register.html', {'errmsg': '请首先同意协议'})
+            # 跳转登录页面
+            return redirect(reverse('user:login'))
 
-    # 业务处理：用户注册，验证用户是否存在
-    try:
-        # 用户已经存在
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        # 用户名不存在可以注册
-        user = None
-
-    if user:
-        return render(request, 'register.html', {'errmsg': '用户已存在'})
-
-    try:
-        user = User.objects.create_user(username, email, password)
-        user.is_active = 0
-        user.save()
-    except Exception as e:
-        return render(request, 'register.html', {'errmsg': '用户注册失败，请重试'})
+        except SignatureExpired as e:
+            # 激活链接一过期
+            return HttpResponse('激活链接已经过期')
 
 
-    # 返回结果, namespace=goods下面的name=index的视图函数
-    return redirect(reverse('goods:index'))
+class LoginView(View):
+    """登陆界面"""
+
+    def get(self, request):
+        return render(request, 'login.html')
