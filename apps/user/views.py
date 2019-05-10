@@ -1,17 +1,16 @@
 import re
 
-from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
 # Create your views here.
 from django.urls import reverse
 from django.views import View
-
-from user.models import User
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+from celery_tasks.tasks import send_register_active_email
 from dailyfresh import settings
+from user.models import User
 
 
 class RegisterView(View):
@@ -65,22 +64,8 @@ class RegisterView(View):
         info = {'confirm': user.id}
         token = serializer.dumps(info).decode('utf8')
 
-        # 发送邮件
-        subject = '天天生鲜激活信息'
-        message = ''
-        sender = settings.EMAIL_FROM
-        receiver = [email]
-        html_message = '<h1>%s, 欢迎您成为天天生鲜注册会员</h1>请点击下面链接激活您的账户<br/><a href="http://127.0.0.1:8000/user/active/%s">http://127.0.0.1:8000/user/active/%s</a>' % (
-        username, token, token)
-
-        try:
-            send_mail(subject,
-                      message,
-                      sender,
-                      receiver,
-                      html_message=html_message, fail_silently=False)
-        except Exception as e:
-            print(e)
+        # 发送邮件,delay放到队列中
+        send_register_active_email.delay(email, username, token)
 
         # 返回结果, namespace=goods下面的name=index的视图函数
         return redirect(reverse('goods:index'))
