@@ -1,0 +1,42 @@
+{% extends 'base_user_center.html' %}
+{% load staticfiles %}
+{% block right_content %}
+		<div class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con">
+					<dl>
+						<dt>当前地址：</dt>
+                        {% if address %}
+						    <dd><input type="radio" name="addr"><label>{{ address.addr }} （{{ address.receiver }} 收） {{ address.phone }}</label></dd>
+					    {% else %}
+                            <dd>无默认地址</dd>
+                        {% endif %}
+                    </dl>
+				</div>
+				<h3 class="common_title2">编辑地址</h3>
+				<div class="site_con">
+					<form method="post">
+                        {% csrf_token %}
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" id="receiver" name="receiver">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" id="addr" name="addr"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" id="zip_code" name="zip_code">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" id="phone" name="phone">
+						</div>
+                        <input type="hidden" id="addr_id" name="addr_id" value="0">
+                        <input type="hidden" id="type" name="type" value="change">
+						<input type="submit" value="提交" class="info_submit">
+					</form>
+				</div>
+		</div>
+{% endblock right_content %}

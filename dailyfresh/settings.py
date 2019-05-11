@@ -90,9 +90,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dailyfresh',
-        'USER': 'root',
-        'PASSWORD': 'haozhang',
-        'HOST': '127.0.0.1',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': '104.41.218.156',
         'PORT':3306,
     }
 }
@@ -162,11 +162,11 @@ EMAIL_HOST_PASSWORD = 'token95'
 EMAIL_FROM = '天天生鲜<huangrong08260@163.com>'
 
 
-# Django的缓存配置,默认换粗是在本机内存中
+# Django的缓存配置,默认缓存是在本机内存中
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/9",
+        "LOCATION": "redis://104.41.218.156:6379/9",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -176,3 +176,16 @@ CACHES = {
 # 配置session存储，默认的登录状态是保存在django数据库中的session表中
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+# 配置登录的地址
+LOGIN_URL = '/user/login'
+
+# 设置Django的文件存储类(继承自默认的存储类),默认的话会存储在django设置中的MEDIA_ROOT路径
+DEFAULT_FILE_STORAGE='utils.fdfs.storage.FDFSStorage'
+
+# 设置fdfs使用的client.conf文件路径
+FDFS_CLIENT_CONF='./utils/fdfs/client.conf'
+
+# 设置fdfs存储服务器上nginx的IP和端口号
+FDFS_URL='http://104.41.218.156:80/'
+
