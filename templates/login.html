@@ -18,7 +18,6 @@
 				</div>
 				<div class="form_input">
                     {# 不设置表单action时，提交表单时，会向浏览器地址栏中的地址提交数据 #}
-                    {# 这里不能写action地址，因为使用了自带login_required，记录了?next=xxx的跳转页面 #}
 					<form method="post">
                         {% csrf_token %}
 						<input type="text" name="username" class="name_input" value="{{ username }}" placeholder="请输入用户名">

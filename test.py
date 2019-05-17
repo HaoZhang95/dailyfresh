@@ -8,7 +8,8 @@ def generate_random_str():
     """
     list = []
     for i in range(500):
-        res = 'face' + (''.join(random.choice(string.ascii_lowercase) for _ in range(2))) + '.com'
+        # res = (''.join(random.choice(string.ascii_lowercase) for _ in range(3))) + 'cloud.com'
+        res = 'music' + (''.join(random.choice(string.ascii_lowercase) for _ in range(2))) + '.com'
         if res not in list:
             list.append(res)
 
