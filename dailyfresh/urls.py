@@ -21,6 +21,8 @@ urlpatterns = [
 
     # 富文本编辑器注册
     re_path('tinymce/', include('tinymce.urls')),
+    # 全文检索框架
+    re_path('search/', include('haystack.urls')),
 
     # 注册自定义应用的路由
     re_path('user/', include(('user.urls', 'user'), namespace='user')),

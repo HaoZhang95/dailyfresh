@@ -117,7 +117,7 @@
             price = parseFloat(price)
             count = parseInt(count)
             amount = price*count
-            // 设置商品的总价
+            // 设置商品的总价,保存两位小数
             $('.total').children('em').text(amount.toFixed(2)+'元')
         }
 
@@ -175,6 +175,8 @@
             // 获取商品id和商品数量
             sku_id = $(this).attr('sku_id') // attr prop
             count = $('.num_show').val()
+
+            {# 手动添加csrf进行ajax的post请求 #}
             csrf = $('input[name="csrfmiddlewaretoken"]').val()
             // 组织参数
             params = {'sku_id':sku_id, 'count':count, 'csrfmiddlewaretoken':csrf}
