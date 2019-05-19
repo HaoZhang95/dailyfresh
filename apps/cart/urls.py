@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.urls import re_path
 
-from cart.views import CartAddView, CartInfoView
+from cart.views import CartAddView, CartInfoView, CartUpdateView, CartDeleteView
 
 urlpatterns = [
     re_path('^add$', CartAddView.as_view(), name='add'),
+    re_path('^update$', CartUpdateView.as_view(), name='update'),
+    re_path('^delete$', CartDeleteView.as_view(), name='delete'),
+
     re_path('^$', CartInfoView.as_view(), name='show'),
 ]

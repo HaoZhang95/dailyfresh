@@ -28,5 +28,5 @@ urlpatterns = [
     re_path('user/', include(('user.urls', 'user'), namespace='user')),
     re_path('cart/', include(('cart.urls', 'cart'), namespace='cart')),
     re_path('order/', include(('order.urls', 'order'), namespace='order')),
-    re_path('^', include(('goods.urls', 'goods'), namespace='goods')),
+    re_path(r'^', include(('goods.urls', 'goods'), namespace='goods')),
 ]

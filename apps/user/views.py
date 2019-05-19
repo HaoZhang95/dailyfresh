@@ -1,6 +1,7 @@
 import re
 
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 # Create your views here.
@@ -13,6 +14,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from celery_tasks.tasks import send_register_active_email
 from dailyfresh import settings
 from goods.models import GoodsSKU
+from order.models import OrderInfo, OrderGoods
 from user.models import User, Address
 from utils.Mixin import LoginRequiredMixin
 
@@ -215,11 +217,63 @@ class UserInfoView(LoginRequiredMixin, View):
 class UserOrderView(LoginRequiredMixin, View):
     """用户中心-订单页面"""
 
-    def get(self, request):
+    def get(self, request, page):
+
+        user = request.user
 
         # 数据库获取用户的订单信息
+        orders = OrderInfo.objects.filter(user=user).order_by('-create_time')
 
-        return render(request, 'user_center_order.html', {'page': 'order'})
+        for order in orders:
+            order_skus = OrderGoods.objects.filter(order_id=order.order_id)
+
+            for order_sku in order_skus:
+                # 计算小计
+                amount = order_sku.count * order_sku.price
+                order_sku.amount = amount
+
+            # 保存单个订单商品的信息
+            order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
+            order.order_skus = order_skus
+
+        # 进行分页
+        paginator = Paginator(orders, 1)
+
+        # 获取第page页的内容
+        try:
+            page = int(page)
+        except Exception as e:
+            page = 1
+
+        if page > paginator.num_pages:
+            page = 1
+
+        # 获取第page页的page对象，废弃因为会加载所有的页码
+        order_page = paginator.page(page)
+
+        # 控制限制的页码，只显示最多5个按钮
+        # 如果总页数小于5，显示[1-页码]
+        # 如果当前页是前三页，显示[1,2,3,4,5]
+        # 如果当前页是后三页，显示[4,5,6,7,8] num_pages-4 到num_oages+1
+        # 显示当前页，显示当前页的前两页和后两页 [2,3,4,5,6]
+
+        num_pages = paginator.num_pages
+        if num_pages < 5:
+            pages = range(1, num_pages + 1)
+        elif num_pages <= 3:
+            pages = range(1, 6)
+        elif num_pages - page <= 2:
+            pages = range(num_pages-4, num_pages+1)
+        else:
+            pages = range(page-2, page+3)
+
+        context = {
+            'order_page': order_page,
+            'pages': pages,
+            'page': 'order',
+        }
+
+        return render(request, 'user_center_order.html', context)
 
 
 class AddressView(LoginRequiredMixin, View):

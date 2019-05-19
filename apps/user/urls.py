@@ -26,6 +26,6 @@ urlpatterns = [
     re_path('^logout$', LogoutView.as_view(), name='logout'),
 
     re_path('^$',  UserInfoView.as_view(), name='user'),
-    re_path('^order$', UserOrderView.as_view(), name='order'),
+    re_path(r'^order/(?P<page>\d+)$', UserOrderView.as_view(), name='order'),
     re_path('^address$', AddressView.as_view(), name='address'),
 ]

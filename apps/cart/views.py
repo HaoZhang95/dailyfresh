@@ -9,6 +9,76 @@ from goods.models import GoodsSKU
 from utils.Mixin import LoginRequiredMixin
 
 
+class CartDeleteView(View):
+    """购物车记录删除"""
+    def post(self, request):
+        # 接受数据
+        user = request.user
+        if not user.is_authenticated():
+            return JsonResponse({'res': 0, 'errmsg': '请先登录'})
+
+        sku_id = request.POST.get('sku_id')
+
+        # 数据验证
+        if not sku_id:
+            return JsonResponse({'res': 1, 'errmsg': '无效的商品id'})
+
+        try:
+            sku = GoodsSKU.objects.get(id=sku_id)
+        except GoodsSKU.DoesNotExist as e:
+            return JsonResponse({'res': 2, 'errmsg': '商品不存在'})
+
+        # 更新购物车数量
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d' % user.id
+
+        # sku_id存在即更新，不存在则新建
+        conn.hdel(cart_key, sku_id)
+
+        # 返回应答
+        return JsonResponse({'res': 3, 'message': '删除成功'})
+
+
+class CartUpdateView(View):
+    """购物车列表更新商品的数量"""
+    def post(self, request):
+        # 接受数据
+        user = request.user
+        if not user.is_authenticated():
+            return JsonResponse({'res': 0, 'errmsg': '请先登录'})
+
+        sku_id = request.POST.get('sku_id')
+        count = request.POST.get('count')
+
+        # 数据验证
+        if not all([sku_id, count]):
+            return JsonResponse({'res': 1, 'errmsg': '数据不完整'})
+
+        try:
+            count = int(count)
+        except Exception as e:
+            return JsonResponse({'res': 2, 'errmsg': '商品数目格式错误'})
+
+        try:
+            sku = GoodsSKU.objects.get(id=sku_id)
+        except GoodsSKU.DoesNotExist as e:
+            return JsonResponse({'res': 3, 'errmsg': '商品不存在'})
+
+        # 更新购物车数量
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d' % user.id
+
+        # 验证商品的库存
+        if count > sku.stock:
+            return JsonResponse({'res': 4, 'errmsg': '商品库存不足'})
+
+        # sku_id存在即更新，不存在则新建
+        conn.hset(cart_key, sku_id, count)
+
+        # 返回应答
+        return JsonResponse({'res': 5, 'errmsg': '更新成功'})
+
+
 class CartAddView(View):
     """购物车记录添加"""
 
