@@ -115,7 +115,6 @@ class LoginView(View):
 
         return render(request, 'login.html', {'username': username, 'checked':checked})
 
-
     def post(self, request):
         """使用django内置的认证系统来处理认证和login后的记录登录状态到session"""
 
