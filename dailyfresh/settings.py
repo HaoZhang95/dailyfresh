@@ -164,6 +164,19 @@ EMAIL_HOST_PASSWORD = 'token95'
 EMAIL_FROM = '天天生鲜<huangrong08260@163.com>'
 
 
+# Sina邮箱的配置
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.sina.com'
+# EMAIL_PORT = 25
+# EMAIL_USE_TLS = False        # SSL加密方式
+# #发送邮件的邮箱
+# EMAIL_HOST_USER = 'xxx0@sina.com'
+# #在邮箱中设置的客户端授权密码
+# EMAIL_HOST_PASSWORD = 'token95'
+# #收件人看到的发件人，必须和上面的邮箱一样，否则发不出去
+# EMAIL_FROM = '天天生鲜<huangrong08260@163.com>'
+
+
 # Django的缓存配置,默认缓存是在本机内存中
 CACHES = {
     "default": {
