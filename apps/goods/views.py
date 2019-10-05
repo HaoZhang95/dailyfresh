@@ -150,17 +150,17 @@ class ListView(View):
         # 如果总页数小于5，显示[1-页码]
         # 如果当前页是前三页，显示[1,2,3,4,5]
         # 如果当前页是后三页，显示[4,5,6,7,8] num_pages-4 到num_oages+1
-        # 显示当前页，显示当前页的前两页和后两页 [2,3,4,5,6]
 
         num_pages = paginator.num_pages
         if num_pages < 5:
             pages = range(1, num_pages + 1)
-        elif num_pages <= 3:
+        elif page <= 3:
             pages = range(1, 6)
         elif num_pages - page <= 2:
             pages = range(num_pages-4, num_pages+1)
         else:
-            pages = range(page-2, page+3)
+            pages = range(1, 6)
+            
 
         # 通过page对象获取数据
         # 获取新品信息
