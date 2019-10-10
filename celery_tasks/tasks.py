@@ -21,7 +21,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dailyfresh.settings')
 django.setup()
 
 
-# 创建一个celery对象,并且命名name
+# 创建一个celery对象,指定celery中间商的位置和第几号库，
+# worker所在的电脑必须拥有相同的django代码才知道，如何链接redis和执行下面的代码
+# 用户名密码的话，broker="redis://:password@127.0.0.1"
 app = Celery('celery_tasks.tasks', broker='redis://127.0.0.1:6379/8')
 
 
