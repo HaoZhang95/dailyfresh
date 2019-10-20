@@ -159,7 +159,7 @@ class ListView(View):
         elif num_pages - page <= 2:
             pages = range(num_pages-4, num_pages+1)
         else:
-            pages = range(1, 6)
+            pages = range(page - 2, page + 3)
             
 
         # 通过page对象获取数据
