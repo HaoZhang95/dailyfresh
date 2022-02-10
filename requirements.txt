@@ -10,7 +10,7 @@ chardet==3.0.4
 constantly==15.1.0
 cryptography==2.6.1
 cssselect==1.0.3
-Django==2.2.1
+Django==2.2.27
 django-haystack==2.8.1
 django-redis==4.10.0
 django-redis-sessions==0.6.1
