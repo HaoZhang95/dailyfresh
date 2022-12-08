@@ -4,7 +4,7 @@ attrs==19.1.0
 Automat==0.7.0
 billiard==3.6.0.0
 celery==4.3.0
-certifi==2019.3.9
+certifi==2022.12.7
 cffi==1.12.3
 chardet==3.0.4
 constantly==15.1.0
